@@ -1,0 +1,98 @@
+{
+  "dashboard": {
+    "title": "Dashboard Vendas - Observabilidade",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Total de Produtos",
+        "type": "stat",
+        "targets": [{
+          "expr": "",
+          "rawSql": "SELECT COUNT(*) as value FROM produtos"
+        }],
+        "datasource": "PostgreSQL",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Total de Vendas",
+        "type": "stat",
+        "targets": [{
+          "rawSql": "SELECT COUNT(*) as value FROM vendas"
+        }],
+        "datasource": "PostgreSQL",
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Receita Total (R$)",
+        "type": "stat",
+        "targets": [{
+          "rawSql": "SELECT SUM(valor_total) as value FROM vendas"
+        }],
+        "datasource": "PostgreSQL",
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0}
+      },
+      {
+        "id": 4,
+        "title": "Vendas por Categoria",
+        "type": "barchart",
+        "targets": [{
+          "rawSql": "SELECT p.categoria as metric, SUM(v.valor_total) as value FROM vendas v JOIN produtos p ON v.produto_id = p.id GROUP BY p.categoria"
+        }],
+        "datasource": "PostgreSQL",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4}
+      },
+      {
+        "id": 5,
+        "title": "Top 10 Produtos",
+        "type": "table",
+        "targets": [{
+          "rawSql": "SELECT p.nome, p.categoria, SUM(v.quantidade) as qtd, SUM(v.valor_total) as receita FROM vendas v JOIN produtos p ON v.produto_id = p.id GROUP BY p.nome, p.categoria ORDER BY receita DESC LIMIT 10"
+        }],
+        "datasource": "PostgreSQL",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4}
+      },
+      {
+        "id": 6,
+        "title": "Taxa de Requisições (req/s)",
+        "type": "graph",
+        "targets": [{
+          "expr": "rate(http_requests_total[1m])"
+        }],
+        "datasource": "Prometheus",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12}
+      },
+      {
+        "id": 7,
+        "title": "Latência (p95)",
+        "type": "graph",
+        "targets": [{
+          "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))"
+        }],
+        "datasource": "Prometheus",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12}
+      },
+      {
+        "id": 8,
+        "title": "Total de Requisições",
+        "type": "stat",
+        "targets": [{
+          "expr": "sum(http_requests_total)"
+        }],
+        "datasource": "Prometheus",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 20}
+      },
+      {
+        "id": 9,
+        "title": "Uso de Memória (MB)",
+        "type": "stat",
+        "targets": [{
+          "expr": "process_resident_memory_bytes / 1024 / 1024"
+        }],
+        "datasource": "Prometheus",
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 20}
+      }
+    ]
+  }
+}
